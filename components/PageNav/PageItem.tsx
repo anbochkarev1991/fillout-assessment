@@ -55,11 +55,17 @@ export default function PageItem({ page, isActive, onSelect, onRename }: PageIte
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    const tagName = (e.target as HTMLElement).tagName;
+  
+    if (tagName === 'INPUT' || tagName === 'TEXTAREA') {
+      return;
+    }
+  
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       if (!isRenaming) onSelect(page.id);
     }
-  };
+  };  
 
   const stateClasses =
     isActive || isRenaming || isFocused
