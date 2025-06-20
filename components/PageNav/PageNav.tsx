@@ -29,7 +29,7 @@ interface Page {
 }
 
 interface PageNavProps {
-  defaultPages: Page[],
+  defaultPages: Page[];
 }
 
 export default function PageNav({ defaultPages }: PageNavProps) {

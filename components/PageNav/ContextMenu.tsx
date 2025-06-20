@@ -47,9 +47,9 @@ export default function ContextMenu({ onRename, parentRef }: Props) {
     <div className="relative">
       <button
         ref={buttonRef}
-        onClick={(e) => {
+        onClick={e => {
           e.stopPropagation();
-          setOpen((prev) => !prev);
+          setOpen(prev => !prev);
         }}
         className="p-1 hover:bg-gray-100 rounded-md"
       >

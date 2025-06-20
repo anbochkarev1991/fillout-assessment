@@ -16,12 +16,7 @@ interface PageItemProps {
   onRename: (id: string, newTitle: string) => void;
 }
 
-export default function PageItem({
-  page,
-  isActive,
-  onSelect,
-  onRename,
-}: PageItemProps) {
+export default function PageItem({ page, isActive, onSelect, onRename }: PageItemProps) {
   const [isRenaming, setIsRenaming] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [draftTitle, setDraftTitle] = useState(page.title);
@@ -34,14 +29,7 @@ export default function PageItem({
     }
   }, [isActive]);
 
-  const {
-    setNodeRef,
-    attributes,
-    listeners,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
+  const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
     id: page.id,
     transition: {
       duration: 200,
@@ -95,7 +83,7 @@ export default function PageItem({
 
   return (
     <div
-      ref={(node) => {
+      ref={node => {
         setNodeRef(node);
         nodeRef.current = node;
       }}
@@ -116,9 +104,9 @@ export default function PageItem({
       {isRenaming ? (
         <input
           value={draftTitle}
-          onChange={(e) => setDraftTitle(e.target.value)}
+          onChange={e => setDraftTitle(e.target.value)}
           onBlur={finishRename}
-          onKeyDown={(e) => {
+          onKeyDown={e => {
             if (e.key === 'Enter') finishRename();
             if (e.key === 'Escape') {
               setDraftTitle(page.title);
