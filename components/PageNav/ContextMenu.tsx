@@ -1,104 +1,113 @@
-'use client';
-
-import {
-  Menu as HeadlessMenu,
-  MenuButton,
-  MenuItem,
-  MenuItems,
-} from '@headlessui/react';
-import { Fragment } from 'react';
-import {
-  MoreVertical,
-  Trash2,
-  FilePlus,
-  Copy,
-  Pencil,
-} from 'lucide-react';
-import clsx from 'clsx';
+import { useState, useRef, useEffect, RefObject } from 'react';
+import { MoreVertical, Trash2, FilePlus, Copy, Flag, PencilLine } from 'lucide-react';
 
 type Props = {
   onRename: () => void;
+  parentRef: RefObject<HTMLDivElement | null>;
 };
 
-export default function ContextMenu({ onRename }: Props) {
+export default function ContextMenu({ onRename, parentRef }: Props) {
+  const [open, setOpen] = useState(false);
+  const [position, setPosition] = useState({ left: 0, top: 0 });
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(e.target as Node) &&
+        !buttonRef.current?.contains(e.target as Node)
+      ) {
+        setOpen(false);
+      }
+    }
+
+    if (open) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (open && parentRef.current && menuRef.current) {
+      const menuEl = menuRef.current;
+
+      const top = -menuEl.offsetHeight - 12;
+      const left = -parentRef.current.getBoundingClientRect().width + 32;
+
+      setPosition({ top, left });
+    }
+  }, [open, parentRef]);
+
   return (
-    <HeadlessMenu as="div" className="relative">
-      <MenuButton
-        onClick={(e) => e.stopPropagation()}
+    <div className="relative">
+      <button
+        ref={buttonRef}
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((prev) => !prev);
+        }}
         className="p-1 hover:bg-gray-100 rounded-md"
       >
-        <MoreVertical className="w-4 h-4 text-gray-400" />
-      </MenuButton>
+        <MoreVertical className="w-4 h-4 text-gray-400 cursor-pointer" />
+      </button>
 
-      <MenuItems
-        anchor="bottom end"
-        className="z-10 mt-1 w-52 origin-top-right rounded-md bg-white shadow-lg border border-gray-200 focus:outline-none"
-      >
-        <div className="px-4 py-2 font-medium text-sm text-gray-800 border-b border-gray-100">
-          Settings
+      {open && (
+        <div
+          ref={menuRef}
+          className="absolute z-50 w-52 rounded-[12px] bg-white shadow-lg border border-[#E1E1E1]"
+          style={{
+            left: `${position.left}px`,
+            top: `${position.top}px`,
+          }}
+        >
+          <div className="px-4 py-2 font-medium text-sm text-gray-800 border-b border-gray-100 bg-[#FAFBFC]">
+            Settings
+          </div>
+
+          <div className="py-1 text-sm text-gray-700 font-medium">
+            <button
+              onClick={() => setOpen(false)}
+              className="w-full flex items-center gap-2 px-4 py-2 text-left hover:bg-gray-50"
+            >
+              <Flag className="w-4 h-4 text-[#2F72E2] fill-[#2F72E2]" />
+              Set as first page
+            </button>
+
+            <button
+              onClick={() => {
+                onRename();
+                setOpen(false);
+              }}
+              className="w-full flex items-center gap-2 px-4 py-2 text-left hover:bg-gray-50"
+            >
+              <PencilLine className="w-4 h-4 text-gray-400" />
+              Rename
+            </button>
+
+            <button className="w-full flex items-center gap-2 px-4 py-2 text-left hover:bg-gray-50">
+              <Copy className="w-4 h-4 text-gray-400" />
+              Copy
+            </button>
+
+            <button className="w-full flex items-center gap-2 px-4 py-2 text-left hover:bg-gray-50">
+              <FilePlus className="w-4 h-4 text-gray-400" />
+              Duplicate
+            </button>
+
+            <div className="my-1 border-t border-gray-100" />
+
+            <button className="w-full flex items-center gap-2 px-4 py-2 text-left text-red-600 hover:bg-gray-50">
+              <Trash2 className="w-4 h-4" />
+              Delete
+            </button>
+          </div>
         </div>
-
-        <div className="py-1 text-sm text-gray-700">
-          <MenuItem as={Fragment}>
-            {({ active }) => (
-              <button
-                onClick={onRename}
-                className={clsx(
-                  'w-full flex items-center gap-2 px-4 py-2 text-left',
-                  active && 'bg-gray-100'
-                )}
-              >
-                <Pencil className="w-4 h-4" />
-                Rename
-              </button>
-            )}
-          </MenuItem>
-
-          <MenuItem as={Fragment}>
-            {({ active }) => (
-              <button
-                className={clsx(
-                  'w-full flex items-center gap-2 px-4 py-2 text-left',
-                  active && 'bg-gray-100'
-                )}
-              >
-                <Copy className="w-4 h-4" />
-                Copy
-              </button>
-            )}
-          </MenuItem>
-
-          <MenuItem as={Fragment}>
-            {({ active }) => (
-              <button
-                className={clsx(
-                  'w-full flex items-center gap-2 px-4 py-2 text-left',
-                  active && 'bg-gray-100'
-                )}
-              >
-                <FilePlus className="w-4 h-4" />
-                Duplicate
-              </button>
-            )}
-          </MenuItem>
-
-          <div className="my-1 border-t border-gray-100" />
-
-          <MenuItem as={Fragment}>
-            {({ active }) => (
-              <button
-                className={clsx(
-                  'w-full flex items-center gap-2 px-4 py-2 text-left text-red-600',
-                  active && 'bg-gray-100'
-                )}
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete
-              </button>
-            )}
-          </MenuItem>
-        </div>
-      </MenuItems>
-    </HeadlessMenu>
+      )}
+    </div>
   );
 }
